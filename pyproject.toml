@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ov-backend-bot"
+version = "0.1.0"
+description = "Telegram-бот O&V Backend Bot для выдачи обучающих материалов"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiogram>=3.15,<4",
+    "aiosqlite>=0.20,<1",
+    "pydantic-settings>=2.7,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3,<9",
+    "pytest-asyncio>=0.25,<1",
+    "ruff>=0.8,<1",
+]
+
+[project.scripts]
+ov-backend-bot = "ov_backend_bot.main:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ov_backend_bot"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
