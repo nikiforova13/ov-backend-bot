@@ -40,9 +40,18 @@ class UserRepository:
                 )
                 """
             )
+            cursor = await connection.execute("PRAGMA table_info(telegram_users)")
+            columns = {row[1] for row in await cursor.fetchall()}
+            if "guide_clicks" not in columns:
+                await connection.execute(
+                    """
+                    ALTER TABLE telegram_users
+                    ADD COLUMN guide_clicks INTEGER NOT NULL DEFAULT 0
+                    """
+                )
             await connection.commit()
 
-    async def save_on_start(self, user: TelegramUser) -> None:
+    async def save_on_start(self, user: TelegramUser) -> dict[str, object]:
         async with aiosqlite.connect(self.database_path) as connection:
             await connection.execute(
                 """
@@ -74,6 +83,39 @@ class UserRepository:
                 ),
             )
             await connection.commit()
+
+        saved = await self.get_by_id(user.user_id)
+        if saved is None:
+            raise RuntimeError(f"User {user.user_id} was not saved")
+        return saved
+
+    async def record_guide_click(self, user_id: int) -> dict[str, object] | None:
+        async with aiosqlite.connect(self.database_path) as connection:
+            cursor = await connection.execute(
+                """
+                UPDATE telegram_users
+                SET guide_clicks = guide_clicks + 1
+                WHERE user_id = ?
+                """,
+                (user_id,),
+            )
+            await connection.commit()
+            if cursor.rowcount == 0:
+                return None
+
+        return await self.get_by_id(user_id)
+
+    async def list_all(self) -> list[dict[str, object]]:
+        async with aiosqlite.connect(self.database_path) as connection:
+            connection.row_factory = aiosqlite.Row
+            cursor = await connection.execute(
+                """
+                SELECT * FROM telegram_users
+                ORDER BY first_seen_at, user_id
+                """
+            )
+            rows = await cursor.fetchall()
+            return [dict(row) for row in rows]
 
     async def get_by_id(self, user_id: int) -> dict[str, object] | None:
         async with aiosqlite.connect(self.database_path) as connection:

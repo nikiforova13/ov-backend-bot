@@ -6,7 +6,7 @@ Telegram-бот, который отправляет пользователям 
 ## Возможности
 
 - команда `/start` регистрирует или обновляет пользователя в SQLite;
-- кнопка «Получить гайд по Python-разработке» отправляет Markdown-файл;
+- кнопка «Получить гайд по Python-разработке» отправляет оформленный PDF;
 - команда `/python_guide` отправляет тот же гайд;
 - повторный запуск обновляет профиль, время последнего запуска и счетчик запусков;
 - токен и пути настраиваются через переменные окружения.
@@ -24,7 +24,10 @@ Telegram-бот, который отправляет пользователям 
 ```text
 ov-backend-bot/
 ├── documents/
-│   └── python-development-guide.md  # Файл, который отправляет бот
+│   ├── assets/                      # Иллюстрации для гайда
+│   └── python-backend-roadmap.pdf   # Файл, который отправляет бот
+├── scripts/
+│   └── build_guide.py               # Сборка PDF-гайда
 ├── src/ov_backend_bot/
 │   ├── handlers/
 │   │   ├── guides.py                # Выдача гайда
@@ -74,7 +77,7 @@ ov-backend-bot/
    ```dotenv
    BOT_TOKEN=ваш_токен
    DATABASE_PATH=data/bot.db
-   GUIDE_PATH=documents/python-development-guide.md
+   GUIDE_PATH=documents/python-backend-roadmap.pdf
    ```
 
 6. Запустите бота:
@@ -120,6 +123,14 @@ pytest
 2. Добавьте кнопку и callback в `keyboards.py`.
 3. Добавьте обработчик отправки файла в `handlers/guides.py`.
 4. Зарегистрируйте новую команду в `main.py`, если она нужна.
+
+## Как пересобрать PDF-гайд
+
+После изменения текста выполните:
+
+```powershell
+python scripts/build_guide.py
+```
 
 ## Безопасность
 

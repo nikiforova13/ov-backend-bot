@@ -3,10 +3,11 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from ov_backend_bot.keyboards import guide_keyboard
+from ov_backend_bot.sheets import GoogleUserSheet, publish_user
 from ov_backend_bot.storage import TelegramUser, UserRepository
 
 
-def create_start_router(users: UserRepository) -> Router:
+def create_start_router(users: UserRepository, user_sheet: GoogleUserSheet | None = None) -> Router:
     router = Router(name="start")
 
     @router.message(CommandStart())
@@ -14,7 +15,7 @@ def create_start_router(users: UserRepository) -> Router:
         if message.from_user is None:
             return
 
-        await users.save_on_start(
+        saved_user = await users.save_on_start(
             TelegramUser(
                 user_id=message.from_user.id,
                 username=message.from_user.username,
@@ -24,6 +25,7 @@ def create_start_router(users: UserRepository) -> Router:
                 is_premium=message.from_user.is_premium,
             )
         )
+        await publish_user(user_sheet, saved_user)
 
         await message.answer(
             "Привет! Я <b>O&amp;V Backend Bot</b>.\n\n"
