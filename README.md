@@ -92,6 +92,12 @@ ov-backend-bot/
    python -m ov_backend_bot.main
    ```
 
+   Запуск в Docker. Файл `.env` и база `data/` остаются на компьютере и в образ не попадают:
+
+   ```powershell
+   docker compose up -d --build
+   ```
+
 ## Хранение пользователей
 
 При команде `/start` бот сохраняет в `data/bot.db`:
